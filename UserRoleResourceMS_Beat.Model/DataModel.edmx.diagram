@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="594ea8c815d444b094af1c9a8dde4fb5" Name="关系图1" ZoomLevel="50">
+        <EntityTypeShape EntityType="UserManageAspModel.T_Resource" Width="1.5" PointX="9.375" PointY="7.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="UserManageAspModel.T_Role" Width="1.5" PointX="0.75" PointY="3.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="UserManageAspModel.T_RoleResource" Width="1.5" PointX="7.5" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="UserManageAspModel.T_User" Width="1.5" PointX="0.75" PointY="7.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="UserManageAspModel.T_UserRole" Width="1.5" PointX="15" PointY="3.25" IsExpanded="true" />
+        <AssociationConnector Association="UserManageAspModel.FK_T_ROLERE_REFERENCE_T_RESOUR" ManuallyRouted="false" />
+        <AssociationConnector Association="UserManageAspModel.FK_T_ROLERE_REFERENCE_T_ROLE" ManuallyRouted="false" />
+        <AssociationConnector Association="UserManageAspModel.FK_T_USERRO_REFERENCE_T_ROLE" ManuallyRouted="false" />
+        <AssociationConnector Association="UserManageAspModel.FK_T_USERRO_REFERENCE_T_USER" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

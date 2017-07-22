@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserRoleResourceMS_Beat", "UserRoleResourceMS_Beat\UserRoleResourceMS_Beat.csproj", "{D88998B0-7B86-4256-BA85-A06B35E181E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserRoleResourceMS_Beat.BLL", "UserRoleResourceMS_Beat.BLL\UserRoleResourceMS_Beat.BLL.csproj", "{6BABCD08-1FB7-42F5-9617-57841899AF40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserRoleResourceMS_Beat.DAL", "UserRoleResourceMS_Beat.DAL\UserRoleResourceMS_Beat.DAL.csproj", "{36545FD6-B046-4C13-B497-41952481E26F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserRoleResourceMS_Beat.Model", "UserRoleResourceMS_Beat.Model\UserRoleResourceMS_Beat.Model.csproj", "{9069919E-C542-4F7B-B39D-AD7C9C2476C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserRoleResourceMS_Beat.IDAL", "UserRoleResourceMS_Beat.IDAL\UserRoleResourceMS_Beat.IDAL.csproj", "{2CA33A94-D7D2-47AC-89C2-C96845B5538B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserRoleResourceMS_Beat.IBLL", "UserRoleResourceMS_Beat.IBLL\UserRoleResourceMS_Beat.IBLL.csproj", "{7F151767-2AF1-4D43-94CD-B31F416C7A9A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D88998B0-7B86-4256-BA85-A06B35E181E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D88998B0-7B86-4256-BA85-A06B35E181E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D88998B0-7B86-4256-BA85-A06B35E181E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D88998B0-7B86-4256-BA85-A06B35E181E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BABCD08-1FB7-42F5-9617-57841899AF40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BABCD08-1FB7-42F5-9617-57841899AF40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BABCD08-1FB7-42F5-9617-57841899AF40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BABCD08-1FB7-42F5-9617-57841899AF40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36545FD6-B046-4C13-B497-41952481E26F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36545FD6-B046-4C13-B497-41952481E26F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36545FD6-B046-4C13-B497-41952481E26F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36545FD6-B046-4C13-B497-41952481E26F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9069919E-C542-4F7B-B39D-AD7C9C2476C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9069919E-C542-4F7B-B39D-AD7C9C2476C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9069919E-C542-4F7B-B39D-AD7C9C2476C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9069919E-C542-4F7B-B39D-AD7C9C2476C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CA33A94-D7D2-47AC-89C2-C96845B5538B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CA33A94-D7D2-47AC-89C2-C96845B5538B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CA33A94-D7D2-47AC-89C2-C96845B5538B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CA33A94-D7D2-47AC-89C2-C96845B5538B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F151767-2AF1-4D43-94CD-B31F416C7A9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F151767-2AF1-4D43-94CD-B31F416C7A9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F151767-2AF1-4D43-94CD-B31F416C7A9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F151767-2AF1-4D43-94CD-B31F416C7A9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
