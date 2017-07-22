@@ -1,0 +1,555 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Index</title>
+    <link href="../../Content/jquery-easyui-1.3.1/themes/icon.css" rel="stylesheet" />
+    <link href="../../Content/jquery-easyui-1.3.1/themes/default/easyui.css" rel="stylesheet" />
+    <link href="../../Content/Site.css" rel="stylesheet" />
+
+    <script src="../../Content/jquery-easyui-1.3.1/jquery-1.8.0.min.js" type="text/javascript"></script>
+    <script src="../../Content/jquery-easyui-1.3.1/jquery.easyui.min.js" type="text/javascript"></script>
+    <script src="../../Content/jquery-easyui-1.3.1/locale/easyui-lang-zh_CN.js" type="text/javascript"></script>
+    @*修改时间格式的Js文件*@
+    <script src="../../Content/jquery-easyui-1.3.1/datapattern2.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+        $(function () {
+            //初始化弹出窗体
+            initTable();
+
+            //绑定注册按钮的事件
+            BindRegistButtonClickEvent();
+
+            //绑定修改事件的信息
+            BindUpdateButtonClickEvent();
+
+            //添加的时候只能添加一个用户名，进行异步判断
+            CheckUserInfoIsTrue();
+
+            //自己写一个验证两次输入的密码相同的JavaScript代码
+            CheckPwdAndPwdOKiSEqualTo();
+
+            //搜索用户信息
+            SearchUserInfo();
+
+            //初始化角色窗体
+
+
+        });
+
+        //初始化表格 
+        function initTable(queryData) {
+            $('#test').datagrid({
+                title: '用户管理',
+                iconCls: 'icon-save',
+                height: 400,
+                nowrap: true,
+                autoRowHeight: false,
+                striped: true,
+                collapsible: true,
+                url: '/UserInfo/GetAllUserInfos',
+                sortName: 'ID',
+                sortOrder: 'asc',
+                //striped:true,
+                border: true,
+                remoteSort: false,
+                idField: 'ID',
+                pagination: true,
+                rownumbers: true,
+                queryParams: queryData,
+                columns: [[
+                    //UserID UserName Password CreateOperatorID CreateOperatorName CreateTime ModiOperatorID ModiOperatorName ModiTime Notes
+                    { field: 'ck', checkbox: true },
+					{ field: 'UserID', title: '用户ID', width: 50, sortable: true },
+					{ field: 'UserName', title: '用户名', width: 100, sortable: true },
+                    { field: 'Password', title: "密码", width: 150, sortable: true, },
+                    { field: 'Notes', title: "备注", width: 150, sortable: true, }
+                ]],
+                toolbar: [{
+                    id: 'btnadd',
+                    text: '添加用户',
+                    iconCls: 'icon-add',
+                    handler: function () {
+                        //实现弹出添加用户信息的层
+                        ShowCreateUserDialog();
+                    }
+                }, '-', {
+                    id: 'btncut',
+                    text: '修改用户',
+                    iconCls: 'icon-cut',
+                    handler: function () {
+
+                        //实现弹出修改用户信息的层
+                        ShowUpdateUserDialog();
+                    }
+                }, '-', {
+                    id: 'btnsave',
+                    text: '删除用户',
+                    iconCls: 'icon-remove',
+                    handler: function () {
+                        //确认只删除一条用户信息
+                        DeleteUserInfoByClick();
+                    }
+                }, '-', {
+                    id: 'btnSetRole',
+                    text: '设置用户角色',
+                    iconCls: 'icon-redo',
+                    handler: function () {
+                        //弹出设置用户角色
+                        SetUserRole();
+                    }
+                }, '-', {
+                    id: 'btncheckRole',
+                    text: '查看用户角色',
+                    iconCls: 'icon-check',
+                    handler:function(){
+                        //弹出查看用户角色
+                        CheckRole();
+                    }
+                }]
+            });
+        }
+        //页面刷新
+        function Formload() {
+            window.location.reload();
+        }
+
+        //弹出添加用户的对话框
+        function ShowCreateUserDialog() {
+            //实现弹出添加用户信息的层
+            $('#AddUserDialog').dialog('open').dialog('setTitle', '添加用户信息');
+
+            //添加完成后清空文本框的值
+            ClearTextBox();
+        }
+
+        //注册用户添加事件
+        function BindRegistButtonClickEvent() {
+            $("#btnRegist").click(function () {
+                //验证所有的文本框是否通过用户的验证
+                var valid = $('#ff').form('validate');
+                if (valid == false) {
+                    return false;
+                }
+
+                //创建传递的参数, //UName,Pwd,Pwd,PwdOK,Phone,Mail
+                var postdata = {
+                    UserID: $("#UserID").val(),
+                    UserName: $("#UserName").val(),
+                    Password: $("#Password").val(),
+                    Notes: $("#Notes").val()
+                };
+
+                //发送异步请求到后台保存用户数据
+                $.post("/UserInfo/Regist", postdata, function (data) {
+                    if (data == "OK") {
+                        //添加成功，(1)关闭对话框，刷新表格
+                        alert("添加成功");
+                        $('#AddUserDialog').dialog('close');
+                        $("#test").datagrid("reload");
+                    }
+                    else {
+                        alert("添加失败，请您检查");
+                    }
+                });
+            });
+        }
+
+        //当添加或者修改完成后清空文本框中的值
+        function ClearTextBox() {
+            $("#UserID").val("");
+            $("#UserName").val("");
+            $("#Password").val("");
+            $("#PasswordOK").val("");
+            $("#Notes").val("");
+        }
+
+        //实现多选删除信息
+        function DeleteUserInfoByClick() {
+            //获取到用户选定的某一列的ID号
+            var deleteUserInfoID = $("#test").datagrid("getSelections");
+            //判断用户选择了多少条数据
+            // //异步将删除的ID发送到后台，后台删除之后，返回前台OK，前台刷新表格
+            if (deleteUserInfoID.length >= 1) {
+                var ids = "";   //1,2,3,4
+                for (var i = 0; i < deleteUserInfoID.length; i++) {
+                    ids += deleteUserInfoID[i].UserID + ",";
+                }
+                //去掉最后的一个,
+                ids = ids.substring(0, ids.length - 1);
+
+                //遍历出删除用户的信息
+                var UNameList = "";
+                for (var i = 0; i < deleteUserInfoID.length; i++) {
+                    UNameList += deleteUserInfoID[i].UserName + ",";
+                }
+                UNameList = UNameList.substring(0, UNameList.length - 1);
+                //var LoginUName = $("#test").datagrid("getSelections")[0].UName;
+                //发送异步请求删除数据
+                $.messager.confirm("删除信息", "您确认删除<font color='Red' size='3'>" + UNameList + "</font>用户吗？", function (DeleteUserInfo) {
+                    if (DeleteUserInfo) {
+                        $.post("/UserInfo/DeleteUserInfo", { deleteUserInfoID: ids, UserName: UNameList }, function (data) {
+                            if (data == "OK") {
+                                $.messager.alert("友情提示", "删除成功");
+                                $("#test").datagrid("reload");
+
+                                //当删除完成的时候清除掉所选择的长度，防止下次选择的时候还记录了上次的内容
+                                $("#test").datagrid("clearSelections");
+                            }
+                            else {
+                                $.messager.alert("友情提示", "删除失败:" + data);
+                            }
+                        });
+                    }
+                });
+            }
+            else {
+                $.messager.alert("友情提示", "请您选择要删除的数据");
+            }
+        }
+
+        //弹出修改用户的对话框
+        function ShowUpdateUserDialog() {
+            var UpdateUserInfoID = $("#test").datagrid("getSelections");
+            if (UpdateUserInfoID.length == 1) {
+                $("#UpdateUserDialog").dialog("open").dialog("setTitle", "修改用户信息");
+                
+                //绑定显示修改的详细信息的内容
+                BingUpdateDetailsShowTextBox();
+            }
+            else {
+                $.messager.alert("友情提示", "每次只能修改一行数据，你已经选择了<font color='red' size='6'>" + UpdateUserInfoID.length + "</font>行");
+            }
+        }
+
+        //绑定修改用户的信息显示在用户的TextBox文本框中
+        function BingUpdateDetailsShowTextBox() {
+            //首先获取选中的用户的ID
+            var CheckID = $("#test").datagrid("getSelections")[0].UserID;
+            
+            //使用异步的getJSON请求绑定前台传递过来的数据
+            $.getJSON("/UserInfo/GetBindDetails", { UserID: CheckID }, function (date) {
+                //绑定数据显示到控件上面，UserID UserName Password CreateOperatorID CreateOperatorName CreateTime ModiOperatorID ModiOperatorName ModiTime Notes
+                $("#UserID1").val(CheckID);
+                $("#UserName1").val(date.UserName);
+                $("#Password1").val(date.Password);
+                $("#PasswordOK1").val(date.Password);
+                $("#Notes1").val(date.Notes);
+            });
+        }
+
+        //修改用户的信息
+        function BindUpdateButtonClickEvent() {
+            $("#btnUpdate").click(function () {           
+                //首先判断前台的验证是否通过
+                var checkID = $("#test").datagrid("getSelections")[0].UserID;
+                var valid = $('#UpdateUserInfo').form('validate');
+
+                if (valid == false) {
+                    return false;
+                }
+
+                //构造需要修改的参数，//UserID UserName Password Notes
+                var postData = {
+                    UserID: checkID,
+                    UserName: $("#UserName1").val(),
+                    Password: $("#Password1").val(),
+                    //PasswordOK: $("#PasswordOK1").val(),
+                    Notes:$("#Notes1").val()
+                };
+
+                //使用异步实现修改用户信息
+                $.post("/UserInfo/UpdateInfo", postData, function (date) {
+                    if (date == "OK") {
+                        $.messager.alert("友情提示", "修改成功");
+                        $("#UpdateUserDialog").dialog('close');
+                        $("#test").datagrid('reload');
+                    }
+                    else {
+                        alert("修改失败，请检查");
+                    }
+                });
+            });
+        }
+
+        //检查用户名是否存在
+        function CheckUserInfoIsTrue() {
+            $("#UserName").blur(function () {
+                //获取输入到控件的值
+                var UName = $("#UserName").val();
+                //使用异步验证
+                $.post("/UserInfo/CheckUserName", { UserID: UName }, function (date) {
+                    if (date == "OK") {
+                        alert("用户名已经存在，请您检查");
+                        $("#UserName").val("");
+                        return;
+                    }
+                });
+            });
+        }
+
+        //实现载入角色信息的操作
+        function SetRole() {
+            $.getJSON("/UserInfo/SetRoleInfo", {}, function (returnedData) {
+                var select = document.getElementById("RoleName");
+                for (var i = 0; i < returnedData.length; i++) {
+                    var option = document.createElement("option");
+                    //$("#RoleName").append("<option value=" + returnedData[i].RoleID + ">" + returnedData[i].RoleName + "</option>");
+                    select.appendChild(option);
+                    option.value = returnedData[i].RoleID;
+                    option.text = returnedData[i].RoleName;
+               }
+            });
+        }
+        //验证两次输入的密码必须一致
+        function CheckPwdAndPwdOKiSEqualTo() {
+            $.extend($.fn.validatebox.defaults.rules, {
+                //判断必须和某个字段相同
+                equalTo: {
+                    validator: function (value, param) {
+                        return $('#' + param[0]).val() == value;
+                    },
+                    message: '字段不匹配'
+                }
+            });
+        }
+
+        //设置搜索用户的方法
+        function SearchUserInfo() {
+            //按照条件进行搜索
+            $("#btnSerach").click(function () {
+                var queryData = {
+                    txtSerachUserName: $("#txtSerachUserName").val()
+                };
+                //重新调用刷新表单信息
+                initTable(queryData);
+                return false;
+            });
+        }
+
+
+
+        //弹出设置用户角色信息
+        function SetUserRole() {
+            var SetUserRoleID = $("#test").datagrid('getSelections');
+            if (SetUserRoleID.length == 1) {
+                $("#UserRoleInfoDialog").dialog('open').dialog('setTitle', "设置用户角色信息");
+                AddUserRoleInfo();
+            }
+            else {
+                $.messager.alert("友情提示", "每次只能设置一个用户的角色信息，你已经选择了<font color='red' size='6'>" + SetUserRoleID.length + "</font>个");
+            }
+        }
+        //实现添加角色的操作
+        function AddUserRoleInfo() {
+            var SetID = $("#test").datagrid('getSelections')[0].UserID;
+            $.getJSON("/UserInfo/GetBindDetails", { UserID: SetID }, function (date) {
+                //绑定用户数据显示到控件上面
+                $("#UserName2").val(date.UserName);
+            });
+        }
+
+        function AddUserRoleBtn() {
+                    //验证
+                    var setID = $("#test").datagrid('getSelections')[0].UserID;
+                    var optionsl = document.getElementById("RoleName").value;
+                    var validate = $('#UserRoleAdd').form('validate');
+                    if (validate == false) {
+                        return false;
+                    }
+                    var postData = {
+                        UserID: setID,
+                        RoleID: optionsl
+                    }
+                    $.post("/UserInfo/AddUserRole", postData, function (data) {
+                        if (data == "OK") {
+                            $.messager.alert("友情提示", "添加成功");
+                            //关闭层，刷新表单
+                            $("#UserRoleInfoDialog").dialog('close');
+                            $("#test").datagrid('reload');
+                        }
+                        else {
+                            $.messager.alert("友情提示", "添加失败，请您检查");
+                            $("#UserRoleInfoDialog").dialog('close');
+                        }
+                    });
+        }
+        //查看用户角色
+        function CheckRole() { 
+            var CheckRoleID = $("#test").datagrid('getSelections');
+            if (CheckRoleID.length == 1) {
+                $("#checkRoleDialog").dialog('open').dialog('setTitle', "查看用户角色信息");
+
+            }
+            else {
+                $.messager.alert("友情提示", "每次只能查看一个用户的角色信息，你已经选择了<font color='red' size='6'>" + CheckRoleID.length + "</font>个");
+            }
+        }
+        //初始化表格
+        function iTable() {
+            $('#checkrole').datagrid({
+                title: '用户角色管理',
+                iconCls: 'icon-save',
+                height: 400,
+                nowrap: true,
+                autoRowHeight: false,
+                striped: true,
+                collapsible: true,
+                url: '/UserInfo/GetUserRoleInfos',
+                sortName: 'ID',
+                sortOrder: 'asc',
+                border: true,
+                remoteSort: false,
+                idField: 'ID',
+                pagination: true,
+                rownumbers: true,
+                columns: [[
+					{ field: 'UserName', title: '用户名', width: 100, sortable: true },
+                    { field: 'RoleName', title: "角色名", width: 100, sortable: true, }
+                ]]
+            });
+        }
+    </script>
+
+</head>
+<body  onload="SetRole()">
+
+     @*-------------------------- 搜索-------------------------*@
+    <fieldset>
+        <legend>用户信息模糊搜索</legend>
+    <div>
+        <label for="txtSerachUserName">用户名：</label>
+        <input type="text" ID="txtSerachUserName" name="txtSerachUserName"  />
+        <a href="#" class="easyui-linkbutton" iconcls="icon-search" id="btnSerach" onclick="SearchUserInfo()"  name="btnSerach">模糊搜索</a>
+    </div>
+    </fieldset>
+
+    @*-------------------------- 实现对用户数据的显示-------------------------*@
+    <div>
+        <table id="test"></table>
+    </div>
+
+     @*----------------------------设置添加的弹出层--------------------------------*@
+    <div id="AddUserDialog" class="easyui-dialog" style="width:360px;height:300px;padding:10px 20px"
+			closed="true" resizable="true" modal="true" buttons="#dlg-buttons" align="center">
+        <form id="ff" method="post" novalidate="novalidate">
+            <table id="tblAdd">
+                <tr>
+                    <th colspan="2" >添加用户信息</th>
+                </tr>
+                <tr>
+                    <td><label for="UserID">用户ID：</label></td>
+                    <td><input class="easyui-validatebox" type="text" id="UserID" name="UserID" data-options="required:true,validType:'length[1,32]'" /></td><td>
+                </tr>
+                <tr>
+                    <td><label for="UserName">用户名：</label></td>
+                    <td><input class="easyui-validatebox" type="text" id="UserName" name="UserName" data-options="required:true,validType:'length[1,32]'" /></td><td>
+                </tr>
+                <tr>
+                    <td><label for="Password">用户密码：</label></td>
+                    <td><input class="easyui-validatebox" type="password" id="Password" name="Password"  data-options="required:true,validType:'length[1,32]'" /></td>
+                </tr>
+                    <tr>
+                    <td><label for="PasswordOK">确认密码：</label></td>
+                    <td><input class="easyui-validatebox" type="password" id="PasswordOK" name="PasswordOK" data-options="required:true" validType="equalTo['Password']" invalidMessage="两次输入密码不匹配" /></td>
+                </tr>
+                <tr>
+                    <td><label for="Notes">备注:</label></td>   <!--data-options="validType:'email'"-->
+                    <td><input class="easyui-validatebox" type="text" id="Notes" name="Notes" data-options="validType:'length[1,200]'" /></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align:center; padding-top:10px">
+                        <a href="javascript:void(0)" class="easyui-linkbutton" id="btnRegist" iconcls="icon-ok" >确定</a>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#AddUserDialog').dialog('close')">关闭</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    @*----------------------------设置修改的的弹出层--------------------------------*@
+    <div id="UpdateUserDialog" class="easyui-dialog" style="width:360px;height:300px;padding:10px 20px"
+			closed="true" resizable="true" modal="true" buttons="#dlg-buttons" align="center">
+        <form id="UpdateUserInfo" method="post" novalidate="novalidate">
+            <table id="tblUpdate">
+                <tr>
+                    <th colspan="2" >修改用户信息</th>
+                </tr>
+@*                <tr>
+                    <td><label for="UserID1">用户ID:</label></td>
+                    <td><input class="easyui-validatebox" type="text" id="UserID1" name="UserID1" readonly="true"/></td><td>
+                </tr>*@
+                <tr>
+                    <td><label for="UserName1">用户名：</label></td>
+                    <td><input class="easyui-validatebox" type="text" id="UserName1" name="UserName1" data-options="required:true,validType:'length[1,32]'" /></td><td>
+                </tr>
+                <tr>
+                    <td><label for="Password1">密码：</label></td>
+                    <td><input class="easyui-validatebox" type="text" id="Password1" name="Password1"  data-options="required:true,validType:'length[1,32]'" /></td>
+                </tr>
+                <tr>
+                    <td><label for="PasswordOK1">确认密码：</label></td>
+                    <td><input class="easyui-validatebox" type="text" id="PasswordOK1" name="PasswordOK1" data-options="required:true" validType="equalTo['Password1']" invalidMessage="两次输入密码不匹配" /></td>
+                </tr>
+                <tr>
+                    <td><label for="Notes1">备注:</label></td>  
+                    <td><input class="easyui-validatebox" type="text" id="Notes1" name="Notes1" data-options="validType:'length[1,200]'" /></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align:center; padding-top:10px">
+                        <a href="javascript:void(0)" class="easyui-linkbutton" id="btnUpdate" iconcls="icon-ok" >确定</a>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#UpdateUserDialog').dialog('close')">关闭</a>
+                    </td>
+                </tr>
+            </table>
+
+        </form>
+    </div>
+
+       @*----------------------------设置添加用户角色的弹出层--------------------------------*@
+    <div id="UserRoleInfoDialog" class="easyui-dialog" style="width:360px;height:200px;padding:10px 20px"
+			closed="true" resizable="true" modal="true" buttons="#dlg-buttons" align="center">
+        <form id="UserRoleAdd" method="post" novalidate="novalidate">
+            <table id="tblAddRole">
+                <tr>
+                    <th colspan="2" >添加角色信息</th>
+                </tr>
+                <tr>
+                    <td><label for="UserName2">用户名称：</label></td>
+                    <td><input class="easyui-validatebox" type="text" id="UserName2" name="UserName2" data-options="required:true,validType:'length[1,32]'" /></td><td>
+                </tr>
+                <tr>
+                    <td><label for="RoleName">角色名称：</label></td>
+                    <td>
+                        <select id="RoleName" name="RoleName" editable="false"   style="width:164px">
+                           <option value="" selected="selected">--请选择--</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align:center; padding-top:10px">
+                        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="AddUserRoleBtn()" name="btnAddRole" iconcls="icon-ok" >确定</a>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#UserRoleInfoDialog').dialog('close')">关闭</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    @*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~实现对权限的查看功能~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*@
+     <div id="checkRoleDialog" class="easyui-dialog" style="width:360px;height:300px;padding:10px 20px"
+			closed="true" resizable="true" modal="true" buttons="#dlg-buttons" align="center">
+           <form id="CheckRoleInfo" method="post" novalidate="novalidate">
+
+        <table id="checkrole"></table>
+             </form>
+    </div>
+
+</body>
+</html>
